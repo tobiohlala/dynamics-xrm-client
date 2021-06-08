@@ -10,6 +10,8 @@
     <RepositoryUrl>https://github.com/tobiohlala/dynamics-xrm-client</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Dynamics 365 XRM CRM Web API Client .NET Core</PackageTags>
+    <PackageLicenseFile></PackageLicenseFile>
+    <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
