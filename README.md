@@ -1,2 +1,2 @@
 # dynamics-xrm-client
-Dynamics365 xRM Web API Clietn for .NET Core
+Dynamics365 xRM Web API Client for .NET Core
