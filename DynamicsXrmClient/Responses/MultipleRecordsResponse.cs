@@ -7,5 +7,8 @@ namespace DynamicsXrmClient.Responses
     {
         [JsonPropertyName("value")]
         public List<T> Results { get; set; }
+
+        [JsonPropertyName("@odata.nextLink")]
+        public string NextLink { get; set; }
     }
 }

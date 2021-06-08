@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Net;
+using System.Linq;
 using System.Text.Json;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.Net;
 using DynamicsXrmClient.Responses;
 using DynamicsXrmClient.Exceptions;
 using DynamicsXrmClient.Batches;
@@ -233,6 +234,19 @@ namespace DynamicsXrmClient
 
                 // Throw if the http request failed or the web api returned an error.
                 response.EnsureSuccessStatusCode();
+
+                if (records.NextLink != null)
+                {
+                    // Results span multiple pages, retrieve recursively.
+
+                    var nextOptions = records
+                        .NextLink
+                        .Replace($"{_httpClient.BaseAddress}{typeof(T).GetLogicalCollectionName()}", string.Empty);
+
+                    var nextRecords = await RetrieveMultipleAsync<T>(nextOptions);
+
+                    return records.Results.Concat(nextRecords).ToList();
+                }
 
                 // Cannot be null here as the web api either returns results or
                 // an error. The latter is handled above by ensuring an http
