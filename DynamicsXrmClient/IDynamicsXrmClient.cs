@@ -1,23 +1,12 @@
 ﻿using DynamicsXrmClient.Batches;
 using System;
 using System.Collections.Generic;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace DynamicsXrmClient
 {
     public interface IDynamicsXrmClient
     {
-        /// <summary>
-        /// Connection settings for the Dynamics365 instance this client connects to.
-        /// </summary>
-        public DynamicsXrmConnectionParams ConnectionParams { get; }
-
-        /// <summary>
-        /// Serialization options used when exchanging records with the web api.
-        /// </summary>
-        public JsonSerializerOptions Options { get; }
-
         /// <summary>
         /// Creates an entity record.
         /// </summary>

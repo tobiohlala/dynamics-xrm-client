@@ -1,11 +1,12 @@
 ﻿using DynamicsXrmClient.Extensions;
 using System;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace DynamicsXrmClient.Batches
 {
-    public interface IChangeSetRequest : IXRMBatchAsyncComposable
+    public interface IChangeSetRequest : IDynamicsXRMBatchAsyncComposable
     {
     }
 
@@ -23,13 +24,13 @@ namespace DynamicsXrmClient.Batches
             Action = action;
         }
 
-        public async Task<HttpContent> ComposeAsync(IDynamicsXrmClient xrmClient)
+        public async Task<HttpContent> ComposeAsync(DynamicsXrmConnectionParams connectionParams, JsonSerializerOptions options)
         {
             var (httpMethod, relativeUri) = Action.Resolve(Entity);
 
-            var request = new HttpRequestMessage(httpMethod, xrmClient.ConnectionParams.ServiceRootUri + relativeUri)
+            var request = new HttpRequestMessage(httpMethod, connectionParams.ServiceRootUri + relativeUri)
             {
-                Content = await Entity.GetHttpContent(xrmClient.Options)
+                Content = await Entity.GetHttpContent(options)
             };
 
             request.Content.Headers.Remove("Content-Type");
