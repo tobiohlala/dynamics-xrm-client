@@ -13,9 +13,6 @@ using DynamicsXrmClient.Extensions;
 
 namespace DynamicsXrmClient
 {
-    /// <summary>
-    /// <see cref="HttpClient"/> wrapper to communicate with the Dynamics365 Xrm Web Api.
-    /// </summary>
     public class DynamicsXrmWebApiClient : IDynamicsXrmClient
     {
         private readonly HttpClient _httpClient;
@@ -33,7 +30,7 @@ namespace DynamicsXrmClient
         public DynamicsXrmConnectionParams ConnectionParams { get; }
 
         /// <summary>
-        /// Serialization options used when exchanging records with the web API.
+        /// Serialization options used when exchanging rows with the web API.
         /// </summary>
         public JsonSerializerOptions JsonSerializerOptions { get; set; } = new JsonSerializerOptions
         {
@@ -62,7 +59,7 @@ namespace DynamicsXrmClient
         /// </summary>
         /// <returns>
         /// A ready-to-use <see cref="DynamicsXrmWebApiClient"> set-up with a valid access token to
-        /// query the Dynamics 365 Xrm Web Api.
+        /// query the Dynamics 365 Xrm Web API.
         /// </returns>
         /// <param name="connectionParams">
         /// A <see cref="DynamicsXrmConnectionParams"/> instance containing the connection information.
@@ -120,18 +117,18 @@ namespace DynamicsXrmClient
         }
 
         ///<inheritdoc/>
-        public async Task<Guid> CreateAsync<T>(T entity) where T : IDynamicsXrmRow
+        public async Task<Guid> CreateAsync<T>(T row)
         {
-            // Create http content containing the json representation of the record.
-            using HttpContent content = await entity.GetHttpContent(JsonSerializerOptions);
+            // Create http content containing the json representation of the row.
+            using HttpContent content = await row.GetHttpContent(JsonSerializerOptions);
 
-            // Query the web api
+            // Query the web API
             HttpResponseMessage response = await _httpClient
-                .PostAsync($"{entity.GetType().GetLogicalCollectionName()}", content);
+                .PostAsync($"{row.GetLogicalCollectionName()}", content);
 
             try
             {
-                // Throw exception if the http request failed or the web api returned an error.
+                // Throw exception if the http request failed or the web API returned an error.
                 response.EnsureSuccessStatusCode();
 
                 var id = response.Headers.Location.AbsoluteUri.Split('(', ')')[1];
@@ -145,18 +142,18 @@ namespace DynamicsXrmClient
         }
 
         ///<inheritdoc/>
-        public async Task UpdateAsync<T>(T entity) where T : IDynamicsXrmRow
+        public async Task UpdateAsync<T>(T row)
         {
-            // Create http content containing the json representation of the record.
-            using HttpContent content = await entity.GetHttpContent(JsonSerializerOptions);
+            // Create http content containing the json representation of the row.
+            using HttpContent content = await row.GetHttpContent(JsonSerializerOptions);
 
-            // Query the web api.
+            // Query the web API.
             HttpResponseMessage response = await _httpClient
-                .PatchAsync($"{entity.GetType().GetLogicalCollectionName()}({entity.Id})", content);
+                .PatchAsync($"{row.GetLogicalCollectionName()}({row.GetDataverseRowId()})", content);
 
             try
             {
-                // Throw exception if the http request failed or the web api returned an error.
+                // Throw exception if the http request failed or the web API returned an error.
                 response.EnsureSuccessStatusCode();
             }
             catch (Exception exception)
@@ -166,18 +163,18 @@ namespace DynamicsXrmClient
         }
 
         ///<inheritdoc/>
-        public async Task<Guid> UpsertAsync<T>(T entity) where T : IDynamicsXrmRow
+        public async Task<Guid> UpsertAsync<T>(T row)
         {
-            // Create http content containing the json representation of the record.
-            using HttpContent content = await entity.GetHttpContent(JsonSerializerOptions);
+            // Create http content containing the json representation of the row.
+            using HttpContent content = await row.GetHttpContent(JsonSerializerOptions);
 
-            // Query the web api.
+            // Query the web API.
             HttpResponseMessage response = await _httpClient
-                .PatchAsync($"{entity.GetType().GetLogicalCollectionName()}({entity.Id})", content);
+                .PatchAsync($"{row.GetLogicalCollectionName()}({row.GetDataverseRowId()})", content);
 
             try
             {
-                // Throw exception if the http request failed or the web api returned an error.
+                // Throw exception if the http request failed or the web API returned an error.
                 response.EnsureSuccessStatusCode();
 
                 var id = response.Headers.Location.AbsoluteUri.Split('(', ')')[1];
@@ -191,15 +188,15 @@ namespace DynamicsXrmClient
         }
 
         ///<inheritdoc/>
-        public async Task DeleteAsync<T>(T entity) where T : IDynamicsXrmRow
+        public async Task DeleteAsync<T>(T row)
         {
-            // Query the web api.
+            // Query the web API.
             HttpResponseMessage response = await _httpClient
-                .DeleteAsync($"{entity.GetType().GetLogicalCollectionName()}({entity.Id})");
+                .DeleteAsync($"{row.GetLogicalCollectionName()}({row.GetDataverseRowId()})");
 
             try
             {
-                // Throw exception if the http request failed or the web api returned an error.
+                // Throw exception if the http request failed or the web API returned an error.
                 response.EnsureSuccessStatusCode();
             }
             catch (Exception exception)
@@ -209,9 +206,9 @@ namespace DynamicsXrmClient
         }
 
         ///<inheritdoc/>
-        public async Task<T> RetrieveAsync<T>(string id, string options = "") where T: IDynamicsXrmRow
+        public async Task<T> RetrieveAsync<T>(string id, string options = "")
         {
-            // Query the web api.
+            // Query the web API.
             HttpResponseMessage response = await _httpClient
                 .GetAsync($"{typeof(T).GetLogicalCollectionName()}({id}){options}");
 
@@ -220,18 +217,18 @@ namespace DynamicsXrmClient
                 return default;
             }
 
-            // Parse web api response as stream.
+            // Parse web API response as stream.
             var content = await response.Content.ReadAsStreamAsync();
 
             try
             {
-                // Try parsing a record from json.
-                var record = await JsonSerializer.DeserializeAsync<T>(content, JsonSerializerOptions);
+                // Try parsing the row from json.
+                var row = await JsonSerializer.DeserializeAsync<T>(content, JsonSerializerOptions);
 
-                // Throw if the http request failed or the web api returned an error.
+                // Throw if the http request failed or the web API returned an error.
                 response.EnsureSuccessStatusCode();
 
-                return record;
+                return row;
             }
             catch (Exception exception)
             {
@@ -240,40 +237,40 @@ namespace DynamicsXrmClient
         }
 
         ///<inheritdoc/>
-        public async Task<List<T>> RetrieveMultipleAsync<T>(string options = "") where T: IDynamicsXrmRow
+        public async Task<List<T>> RetrieveMultipleAsync<T>(string options = "")
         {
-            // Query the web api.
+            // Query the web API.
             HttpResponseMessage response = await _httpClient
                 .GetAsync($"{typeof(T).GetLogicalCollectionName()}{options}");
 
-            // Parse web api response as stream.
+            // Parse web API response as stream.
             var content = await response.Content.ReadAsStreamAsync();
 
             try
             {
-                // Try parsing a collection of records from json.
-                var records = await JsonSerializer.DeserializeAsync<MultipleRecordsResponse<T>>(content, JsonSerializerOptions);
+                // Try parsing a collection of rows from json.
+                var rows = await JsonSerializer.DeserializeAsync<MultipleRowsResponse<T>>(content, JsonSerializerOptions);
 
-                // Throw if the http request failed or the web api returned an error.
+                // Throw if the http request failed or the web API returned an error.
                 response.EnsureSuccessStatusCode();
 
-                if (records.NextLink != null)
+                if (rows.NextLink != null)
                 {
                     // Results span multiple pages, retrieve recursively.
 
-                    var nextOptions = records
+                    var nextOptions = rows
                         .NextLink
                         .Replace($"{_httpClient.BaseAddress}{typeof(T).GetLogicalCollectionName()}", string.Empty);
 
-                    var nextRecords = await RetrieveMultipleAsync<T>(nextOptions);
+                    var nextRows = await RetrieveMultipleAsync<T>(nextOptions);
 
-                    return records.Results.Concat(nextRecords).ToList();
+                    return rows.Results.Concat(nextRows).ToList();
                 }
 
-                // Cannot be null here as the web api either returns results or
+                // Cannot be null here as the web API either returns results or
                 // an error. The latter is handled above by ensuring an http
                 // success status code and any json errors are catched, too.
-                return records.Results;
+                return rows.Results;
             }
             catch (Exception exception)
             {
@@ -287,12 +284,12 @@ namespace DynamicsXrmClient
             // Create http content containing the batch request.
             HttpContent content = await batch.ComposeAsync(ConnectionParams, JsonSerializerOptions);
 
-            // Query the web api.
+            // Query the web API.
             HttpResponseMessage response = await _httpClient.PostAsync("$batch", content);
 
             try
             {
-                // Throw exception if the http request failed or the web api returned an error.
+                // Throw exception if the http request failed or the web API returned an error.
                 response.EnsureSuccessStatusCode();
 
                 // TODO parse response.

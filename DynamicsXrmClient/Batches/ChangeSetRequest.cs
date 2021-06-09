@@ -10,27 +10,27 @@ namespace DynamicsXrmClient.Batches
     {
     }
 
-    public class ChangeSetRequest<T> : IChangeSetRequest where T: IDynamicsXrmRow
+    public class ChangeSetRequest<T> : IChangeSetRequest
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
 
         public ChangeSetRequestAction Action { get; set; }
 
-        public T Entity { get; set; }
+        public T Row { get; set; }
 
-        public ChangeSetRequest(T entity, ChangeSetRequestAction action)
+        public ChangeSetRequest(T row, ChangeSetRequestAction action)
         {
-            Entity = entity;
+            Row = row;
             Action = action;
         }
 
         public async Task<HttpContent> ComposeAsync(DynamicsXrmConnectionParams connectionParams, JsonSerializerOptions options)
         {
-            var (httpMethod, relativeUri) = Action.Resolve(Entity);
+            var (httpMethod, relativeUri) = Action.Resolve(Row);
 
             var request = new HttpRequestMessage(httpMethod, connectionParams.ServiceRootUri + relativeUri)
             {
-                Content = await Entity.GetHttpContent(options)
+                Content = await Row.GetHttpContent(options)
             };
 
             request.Content.Headers.Remove("Content-Type");

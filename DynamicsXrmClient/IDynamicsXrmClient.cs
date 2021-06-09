@@ -8,86 +8,86 @@ namespace DynamicsXrmClient
     public interface IDynamicsXrmClient
     {
         /// <summary>
-        /// Creates an entity record.
+        /// Creates a table row in dataverse.
         /// </summary>
-        /// <param name="entity">
-        /// The entity record to create.
+        /// <param name="row">
+        /// The table row to create.
         /// </param>
-        /// <returns> The <see cref="Guid"/> of the entity record created</returns>
+        /// <returns> The <see cref="Guid"/> of the table row created</returns>
         /// <remarks>
         /// see <a href="https://docs.microsoft.com/en-us/powerapps/developer/data-platform/webapi/create-entity-web-api"/>
         /// </remarks>
-        public Task<Guid> CreateAsync<T>(T entity) where T: IDynamicsXrmRow;
+        public Task<Guid> CreateAsync<T>(T row);
 
         /// <summary>
-        /// Updates an entity record.
+        /// Updates a table row.
         /// </summary>
-        /// <param name="entity">
-        /// An instance of the entity record to update.
+        /// <param name="row">
+        /// The table row to update.
         /// </param>
         /// <remarks>
         /// see <a href="https://docs.microsoft.com/en-us/powerapps/developer/data-platform/webapi/update-delete-entities-using-web-api"/>
         /// </remarks>
-        public Task UpdateAsync<T>(T entity) where T : IDynamicsXrmRow;
+        public Task UpdateAsync<T>(T row);
 
         /// <summary>
-        /// Upserts an entity record.
+        /// Upserts an table row.
         /// </summary>
-        /// <param name="entity">
-        /// An instance of the entity record to upsert.
+        /// <param name="row">
+        /// The table row to upsert.
         /// </param>
-        /// <returns> The <see cref="Guid"/> of the entity record upserted</returns>
+        /// <returns> The <see cref="Guid"/> of the table row upserted</returns>
         /// <remarks>
         /// see <a href="https://docs.microsoft.com/en-us/powerapps/developer/data-platform/webapi/update-delete-entities-using-web-api#upsert-an-entity"/>
         /// </remarks>
-        public Task<Guid> UpsertAsync<T>(T entity) where T : IDynamicsXrmRow;
+        public Task<Guid> UpsertAsync<T>(T row);
 
         /// <summary>
-        /// Deletes an entity record.
+        /// Deletes an table row.
         /// </summary>
-        /// <param name="entity">
-        /// An instance of the entity record to delete.
+        /// <param name="row">
+        /// The table row to delete.
         /// </param>
         /// <remarks>
         /// see <a href="https://docs.microsoft.com/en-us/powerapps/developer/data-platform/webapi/update-delete-entities-using-web-api"/>
         /// </remarks>
-        public Task DeleteAsync<T>(T entity) where T : IDynamicsXrmRow;
+        public Task DeleteAsync<T>(T row);
 
         /// <summary>
-        /// Retrieves a single entity record.
+        /// Retrieves a single table row.
         /// </summary>
-        /// <typeparam name="T">The entity to query</typeparam>
-        /// <param name="id">The <see cref="Guid"/> of the entity record to retrieve</param>
-        /// <param name="options">OData system query options as supported by the Xrm Web Api</param>
-        /// <returns>Entity record of <typeparamref name="T"/>.</returns>
+        /// <typeparam name="T">The table row to query</typeparam>
+        /// <param name="id">The <see cref="Guid"/> of the table row to retrieve</param>
+        /// <param name="options">OData system query options as supported by the Xrm Web API</param>
+        /// <returns>A table row of <typeparamref name="T"/>.</returns>
         /// <remarks>
-        public async Task<T> RetrieveAsync<T>(Guid id, string options = "") where T: IDynamicsXrmRow
+        public async Task<T> RetrieveAsync<T>(Guid id, string options = "")
         {
             return await RetrieveAsync<T>(id.ToString(), options);
         }
 
         /// <summary>
-        /// Retrieves a single entity record.
+        /// Retrieves a single table row.
         /// </summary>
-        /// <typeparam name="T">The entity to query</typeparam>
-        /// <param name="id">The id of the entity record to retrieve</param>
-        /// <param name="options">OData system query options as supported by the Xrm Web Api</param>
-        /// <returns>Entity record of <typeparamref name="T"/>.</returns>
+        /// <typeparam name="T">The table row to query</typeparam>
+        /// <param name="id">The id of the table row to retrieve</param>
+        /// <param name="options">OData system query options as supported by the Xrm Web API</param>
+        /// <returns>A table row of <typeparamref name="T"/>.</returns>
         /// <remarks>
         /// see <a href="https://docs.microsoft.com/en-us/powerapps/developer/data-platform/webapi/retrieve-entity-using-web-api"/>
         /// </remarks>
-        public Task<T> RetrieveAsync<T>(string id, string options = "") where T: IDynamicsXrmRow;
+        public Task<T> RetrieveAsync<T>(string id, string options = "");
 
         /// <summary>
-        /// Retrieves a collection of entity records.
+        /// Retrieves a collection of table rows.
         /// </summary>
-        /// <typeparam name="T">The entity to query</typeparam>
-        /// <param name="options">OData system query options as supported by the Xrm Web Api</param>
-        /// <returns>Collection of entity records of <typeparamref name="T"/>.</returns>
+        /// <typeparam name="T">The table row to query</typeparam>
+        /// <param name="options">OData system query options as supported by the Xrm Web API</param>
+        /// <returns>A list of table rows of <typeparamref name="T"/>.</returns>
         /// <remarks>
         /// see <a href="https://docs.microsoft.com/en-us/powerapps/developer/data-platform/webapi/retrieve-entity-using-web-api"/>
         /// </remarks>
-        public Task<List<T>> RetrieveMultipleAsync<T>(string options) where T: IDynamicsXrmRow;
+        public Task<List<T>> RetrieveMultipleAsync<T>(string options);
 
         /// <summary>
         /// Executes multiple operations in a single HTTP request using a batch operation.
