@@ -9,7 +9,7 @@ namespace DynamicsXrmClient.Batches
     {
     }
 
-    public class ChangeSetRequest<T> : IChangeSetRequest where T: IXRMEntity
+    public class ChangeSetRequest<T> : IChangeSetRequest where T: IDynamicsXrmRow
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
 

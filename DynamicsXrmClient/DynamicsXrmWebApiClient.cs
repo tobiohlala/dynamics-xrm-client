@@ -23,7 +23,7 @@ namespace DynamicsXrmClient
         private DynamicsXrmWebApiClient(HttpClient httpClient) => _httpClient = httpClient;
 
         ///<inheritdoc/>
-        public DynamicsConnectionParams ConnectionParams { get; set; }
+        public DynamicsXrmConnectionParams ConnectionParams { get; set; }
 
         public JsonSerializerOptions Options { get; set; } = new JsonSerializerOptions
         {
@@ -39,12 +39,12 @@ namespace DynamicsXrmClient
         /// query the Dynamics 365 Xrm Web Api.
         /// </returns>
         /// <param name="connection">
-        /// A <see cref="DynamicsConnectionParams"/> instance containing the connection information.
+        /// A <see cref="DynamicsXrmConnectionParams"/> instance containing the connection information.
         /// </param>
         /// <remarks>
         /// see also <a href="https://docs.microsoft.com/en-us/azure/active-directory/develop/v1-oauth2-client-creds-grant-flow"/>
         /// </remarks>
-        public static async Task<DynamicsXrmWebApiClient> ConnectAsync(DynamicsConnectionParams connection)
+        public static async Task<DynamicsXrmWebApiClient> ConnectAsync(DynamicsXrmConnectionParams connection)
         {
             using var client = new HttpClient();
 
@@ -98,7 +98,7 @@ namespace DynamicsXrmClient
         }
 
         ///<inheritdoc/>
-        public async Task<Guid> CreateAsync<T>(T entity) where T : IXRMEntity
+        public async Task<Guid> CreateAsync<T>(T entity) where T : IDynamicsXrmRow
         {
             // Create http content containing the json representation of the record.
             using HttpContent content = await entity.GetHttpContent(Options);
@@ -123,7 +123,7 @@ namespace DynamicsXrmClient
         }
 
         ///<inheritdoc/>
-        public async Task UpdateAsync<T>(T entity) where T : IXRMEntity
+        public async Task UpdateAsync<T>(T entity) where T : IDynamicsXrmRow
         {
             // Create http content containing the json representation of the record.
             using HttpContent content = await entity.GetHttpContent(Options);
@@ -144,7 +144,7 @@ namespace DynamicsXrmClient
         }
 
         ///<inheritdoc/>
-        public async Task<Guid> UpsertAsync<T>(T entity) where T : IXRMEntity
+        public async Task<Guid> UpsertAsync<T>(T entity) where T : IDynamicsXrmRow
         {
             // Create http content containing the json representation of the record.
             using HttpContent content = await entity.GetHttpContent(Options);
@@ -169,7 +169,7 @@ namespace DynamicsXrmClient
         }
 
         ///<inheritdoc/>
-        public async Task DeleteAsync<T>(T entity) where T : IXRMEntity
+        public async Task DeleteAsync<T>(T entity) where T : IDynamicsXrmRow
         {
             // Query the web api.
             HttpResponseMessage response = await _httpClient
@@ -187,7 +187,7 @@ namespace DynamicsXrmClient
         }
 
         ///<inheritdoc/>
-        public async Task<T> RetrieveAsync<T>(string id, string options = "") where T: IXRMEntity
+        public async Task<T> RetrieveAsync<T>(string id, string options = "") where T: IDynamicsXrmRow
         {
             // Query the web api.
             HttpResponseMessage response = await _httpClient
@@ -218,7 +218,7 @@ namespace DynamicsXrmClient
         }
 
         ///<inheritdoc/>
-        public async Task<List<T>> RetrieveMultipleAsync<T>(string options = "") where T: IXRMEntity
+        public async Task<List<T>> RetrieveMultipleAsync<T>(string options = "") where T: IDynamicsXrmRow
         {
             // Query the web api.
             HttpResponseMessage response = await _httpClient

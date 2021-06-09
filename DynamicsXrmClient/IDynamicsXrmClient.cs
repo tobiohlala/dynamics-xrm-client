@@ -11,7 +11,7 @@ namespace DynamicsXrmClient
         /// <summary>
         /// Connection settings for the Dynamics365 instance this client connects to.
         /// </summary>
-        public DynamicsConnectionParams ConnectionParams { get; }
+        public DynamicsXrmConnectionParams ConnectionParams { get; }
 
         /// <summary>
         /// Serialization options used when exchanging records with the web api.
@@ -28,7 +28,7 @@ namespace DynamicsXrmClient
         /// <remarks>
         /// see <a href="https://docs.microsoft.com/en-us/powerapps/developer/data-platform/webapi/create-entity-web-api"/>
         /// </remarks>
-        public Task<Guid> CreateAsync<T>(T entity) where T: IXRMEntity;
+        public Task<Guid> CreateAsync<T>(T entity) where T: IDynamicsXrmRow;
 
         /// <summary>
         /// Updates an entity record.
@@ -39,7 +39,7 @@ namespace DynamicsXrmClient
         /// <remarks>
         /// see <a href="https://docs.microsoft.com/en-us/powerapps/developer/data-platform/webapi/update-delete-entities-using-web-api"/>
         /// </remarks>
-        public Task UpdateAsync<T>(T entity) where T : IXRMEntity;
+        public Task UpdateAsync<T>(T entity) where T : IDynamicsXrmRow;
 
         /// <summary>
         /// Upserts an entity record.
@@ -51,7 +51,7 @@ namespace DynamicsXrmClient
         /// <remarks>
         /// see <a href="https://docs.microsoft.com/en-us/powerapps/developer/data-platform/webapi/update-delete-entities-using-web-api#upsert-an-entity"/>
         /// </remarks>
-        public Task<Guid> UpsertAsync<T>(T entity) where T : IXRMEntity;
+        public Task<Guid> UpsertAsync<T>(T entity) where T : IDynamicsXrmRow;
 
         /// <summary>
         /// Deletes an entity record.
@@ -62,7 +62,7 @@ namespace DynamicsXrmClient
         /// <remarks>
         /// see <a href="https://docs.microsoft.com/en-us/powerapps/developer/data-platform/webapi/update-delete-entities-using-web-api"/>
         /// </remarks>
-        public Task DeleteAsync<T>(T entity) where T : IXRMEntity;
+        public Task DeleteAsync<T>(T entity) where T : IDynamicsXrmRow;
 
         /// <summary>
         /// Retrieves a single entity record.
@@ -72,7 +72,7 @@ namespace DynamicsXrmClient
         /// <param name="options">OData system query options as supported by the Xrm Web Api</param>
         /// <returns>Entity record of <typeparamref name="T"/>.</returns>
         /// <remarks>
-        public async Task<T> RetrieveAsync<T>(Guid id, string options = "") where T: IXRMEntity
+        public async Task<T> RetrieveAsync<T>(Guid id, string options = "") where T: IDynamicsXrmRow
         {
             return await RetrieveAsync<T>(id.ToString(), options);
         }
@@ -87,7 +87,7 @@ namespace DynamicsXrmClient
         /// <remarks>
         /// see <a href="https://docs.microsoft.com/en-us/powerapps/developer/data-platform/webapi/retrieve-entity-using-web-api"/>
         /// </remarks>
-        public Task<T> RetrieveAsync<T>(string id, string options = "") where T: IXRMEntity;
+        public Task<T> RetrieveAsync<T>(string id, string options = "") where T: IDynamicsXrmRow;
 
         /// <summary>
         /// Retrieves a collection of entity records.
@@ -98,7 +98,7 @@ namespace DynamicsXrmClient
         /// <remarks>
         /// see <a href="https://docs.microsoft.com/en-us/powerapps/developer/data-platform/webapi/retrieve-entity-using-web-api"/>
         /// </remarks>
-        public Task<List<T>> RetrieveMultipleAsync<T>(string options) where T: IXRMEntity;
+        public Task<List<T>> RetrieveMultipleAsync<T>(string options) where T: IDynamicsXrmRow;
 
         /// <summary>
         /// Executes multiple operations in a single HTTP request using a batch operation.

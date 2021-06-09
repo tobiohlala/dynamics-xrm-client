@@ -2,7 +2,7 @@
 
 namespace DynamicsXrmClient
 {
-    public interface IXRMEntity
+    public interface IDynamicsXrmRow
     {
         public Guid Id { get; set; }
     }
