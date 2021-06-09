@@ -72,7 +72,7 @@ namespace DynamicsXrmClient
         /// <param name="options">OData system query options as supported by the Xrm Web Api</param>
         /// <returns>Entity record of <typeparamref name="T"/>.</returns>
         /// <remarks>
-        public async Task<T> RetrieveAsync<T>(Guid id, string options = "") where T: IXRMEntity, new()
+        public async Task<T> RetrieveAsync<T>(Guid id, string options = "") where T: IXRMEntity
         {
             return await RetrieveAsync<T>(id.ToString(), options);
         }
@@ -87,7 +87,7 @@ namespace DynamicsXrmClient
         /// <remarks>
         /// see <a href="https://docs.microsoft.com/en-us/powerapps/developer/data-platform/webapi/retrieve-entity-using-web-api"/>
         /// </remarks>
-        public Task<T> RetrieveAsync<T>(string id, string options = "") where T: IXRMEntity, new();
+        public Task<T> RetrieveAsync<T>(string id, string options = "") where T: IXRMEntity;
 
         /// <summary>
         /// Retrieves a collection of entity records.
@@ -98,7 +98,7 @@ namespace DynamicsXrmClient
         /// <remarks>
         /// see <a href="https://docs.microsoft.com/en-us/powerapps/developer/data-platform/webapi/retrieve-entity-using-web-api"/>
         /// </remarks>
-        public Task<List<T>> RetrieveMultipleAsync<T>(string options) where T: IXRMEntity,new();
+        public Task<List<T>> RetrieveMultipleAsync<T>(string options) where T: IXRMEntity;
 
         /// <summary>
         /// Executes multiple operations in a single HTTP request using a batch operation.
