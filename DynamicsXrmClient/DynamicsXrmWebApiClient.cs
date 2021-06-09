@@ -218,7 +218,7 @@ namespace DynamicsXrmClient
         }
 
         ///<inheritdoc/>
-        public async Task<List<T>> RetrieveMultipleAsync<T>(string options) where T: IXRMEntity, new()
+        public async Task<List<T>> RetrieveMultipleAsync<T>(string options = "") where T: IXRMEntity, new()
         {
             // Query the web api.
             HttpResponseMessage response = await _httpClient
