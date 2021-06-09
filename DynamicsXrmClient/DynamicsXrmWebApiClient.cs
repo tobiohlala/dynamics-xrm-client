@@ -16,19 +16,45 @@ namespace DynamicsXrmClient
     /// <summary>
     /// <see cref="HttpClient"/> wrapper to communicate with the Dynamics365 Xrm Web Api.
     /// </summary>
-    public sealed class DynamicsXrmWebApiClient : IDynamicsXrmClient
+    public class DynamicsXrmWebApiClient : IDynamicsXrmClient
     {
         private readonly HttpClient _httpClient;
 
-        private DynamicsXrmWebApiClient(HttpClient httpClient) => _httpClient = httpClient;
+        private DynamicsXrmWebApiClient(HttpClient httpClient, DynamicsXrmConnectionParams connectionParams)
+        {
+            _httpClient = httpClient;
 
-        ///<inheritdoc/>
-        public DynamicsConnectionParams ConnectionParams { get; set; }
+            ConnectionParams = connectionParams;
+        }
 
-        public JsonSerializerOptions Options { get; set; } = new JsonSerializerOptions
+        /// <summary>
+        /// Connection settings for the Dynamics365 instance this client connects to.
+        /// </summary>
+        public DynamicsXrmConnectionParams ConnectionParams { get; }
+
+        /// <summary>
+        /// Serialization options used when exchanging records with the web API.
+        /// </summary>
+        public JsonSerializerOptions JsonSerializerOptions { get; set; } = new JsonSerializerOptions
         {
             IgnoreNullValues = true
         };
+
+        /// <summary>
+        /// Time to wait before an API request returns a timeout.
+        /// </summary>
+        public TimeSpan HttpRequestTimeout
+        {
+            get
+            {
+                return _httpClient.Timeout;
+            }
+
+            set
+            {
+                _httpClient.Timeout = value;
+            }
+        }
 
         /// <summary>
         /// Factory method to create and initialize a generic Dynamics365 <see cref="DynamicsXrmWebApiClient">
@@ -38,17 +64,17 @@ namespace DynamicsXrmClient
         /// A ready-to-use <see cref="DynamicsXrmWebApiClient"> set-up with a valid access token to
         /// query the Dynamics 365 Xrm Web Api.
         /// </returns>
-        /// <param name="connection">
-        /// A <see cref="DynamicsConnectionParams"/> instance containing the connection information.
+        /// <param name="connectionParams">
+        /// A <see cref="DynamicsXrmConnectionParams"/> instance containing the connection information.
         /// </param>
         /// <remarks>
         /// see also <a href="https://docs.microsoft.com/en-us/azure/active-directory/develop/v1-oauth2-client-creds-grant-flow"/>
         /// </remarks>
-        public static async Task<DynamicsXrmWebApiClient> ConnectAsync(DynamicsConnectionParams connection)
+        public static async Task<DynamicsXrmWebApiClient> ConnectAsync(DynamicsXrmConnectionParams connectionParams)
         {
             using var client = new HttpClient();
 
-            string serviceRootBaseUri = new Uri(connection.ServiceRootUri)
+            string serviceRootBaseUri = new Uri(connectionParams.ServiceRootUri)
                 .GetLeftPart(UriPartial.Authority);
 
             // Build an access token request with a shared secret.
@@ -58,10 +84,10 @@ namespace DynamicsXrmClient
                 new KeyValuePair<string, string>("resource", serviceRootBaseUri),
 
                 // Azure AD App Registration client id.
-                new KeyValuePair<string, string>("client_id", connection.ClientId),
+                new KeyValuePair<string, string>("client_id", connectionParams.ClientId),
 
                 // Azure AD App Registration client secret.
-                new KeyValuePair<string, string>("client_secret", connection.ClientSecret),
+                new KeyValuePair<string, string>("client_secret", connectionParams.ClientSecret),
 
                 // Grant type in a Client Credentials Grant Flow must be 'client_credentials'.
                 new KeyValuePair<string, string>("grant_type", "client_credentials")
@@ -69,7 +95,7 @@ namespace DynamicsXrmClient
 
             // Request an access token.
             HttpResponseMessage response = await client
-                .PostAsync($"https://login.microsoftonline.com/{connection.TenantId}/oauth2/token", formContent);
+                .PostAsync($"https://login.microsoftonline.com/{connectionParams.TenantId}/oauth2/token", formContent);
 
             response.EnsureSuccessStatusCode();
 
@@ -81,8 +107,7 @@ namespace DynamicsXrmClient
             // Create and initialize http client.
             var httpClient = new HttpClient
             {
-                BaseAddress = new Uri(connection.ServiceRootUri),
-                Timeout = TimeSpan.FromMinutes(5)
+                BaseAddress = new Uri(connectionParams.ServiceRootUri)
             };
 
             httpClient.DefaultRequestHeaders.Add("OData-MaxVersion", "4.0");
@@ -91,17 +116,14 @@ namespace DynamicsXrmClient
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessTokenResponse.AccessToken);
 
-            return new DynamicsXrmWebApiClient(httpClient)
-            {
-                ConnectionParams = connection
-            };
+            return new DynamicsXrmWebApiClient(httpClient, connectionParams);
         }
 
         ///<inheritdoc/>
-        public async Task<Guid> CreateAsync<T>(T entity) where T : IXRMEntity
+        public async Task<Guid> CreateAsync<T>(T entity) where T : IDynamicsXrmRow
         {
             // Create http content containing the json representation of the record.
-            using HttpContent content = await entity.GetHttpContent(Options);
+            using HttpContent content = await entity.GetHttpContent(JsonSerializerOptions);
 
             // Query the web api
             HttpResponseMessage response = await _httpClient
@@ -123,10 +145,10 @@ namespace DynamicsXrmClient
         }
 
         ///<inheritdoc/>
-        public async Task UpdateAsync<T>(T entity) where T : IXRMEntity
+        public async Task UpdateAsync<T>(T entity) where T : IDynamicsXrmRow
         {
             // Create http content containing the json representation of the record.
-            using HttpContent content = await entity.GetHttpContent(Options);
+            using HttpContent content = await entity.GetHttpContent(JsonSerializerOptions);
 
             // Query the web api.
             HttpResponseMessage response = await _httpClient
@@ -144,10 +166,10 @@ namespace DynamicsXrmClient
         }
 
         ///<inheritdoc/>
-        public async Task<Guid> UpsertAsync<T>(T entity) where T : IXRMEntity
+        public async Task<Guid> UpsertAsync<T>(T entity) where T : IDynamicsXrmRow
         {
             // Create http content containing the json representation of the record.
-            using HttpContent content = await entity.GetHttpContent(Options);
+            using HttpContent content = await entity.GetHttpContent(JsonSerializerOptions);
 
             // Query the web api.
             HttpResponseMessage response = await _httpClient
@@ -169,7 +191,7 @@ namespace DynamicsXrmClient
         }
 
         ///<inheritdoc/>
-        public async Task DeleteAsync<T>(T entity) where T : IXRMEntity
+        public async Task DeleteAsync<T>(T entity) where T : IDynamicsXrmRow
         {
             // Query the web api.
             HttpResponseMessage response = await _httpClient
@@ -187,7 +209,7 @@ namespace DynamicsXrmClient
         }
 
         ///<inheritdoc/>
-        public async Task<T> RetrieveAsync<T>(string id, string options = "") where T: IXRMEntity, new()
+        public async Task<T> RetrieveAsync<T>(string id, string options = "") where T: IDynamicsXrmRow
         {
             // Query the web api.
             HttpResponseMessage response = await _httpClient
@@ -204,7 +226,7 @@ namespace DynamicsXrmClient
             try
             {
                 // Try parsing a record from json.
-                var record = await JsonSerializer.DeserializeAsync<T>(content, Options);
+                var record = await JsonSerializer.DeserializeAsync<T>(content, JsonSerializerOptions);
 
                 // Throw if the http request failed or the web api returned an error.
                 response.EnsureSuccessStatusCode();
@@ -218,7 +240,7 @@ namespace DynamicsXrmClient
         }
 
         ///<inheritdoc/>
-        public async Task<List<T>> RetrieveMultipleAsync<T>(string options) where T: IXRMEntity, new()
+        public async Task<List<T>> RetrieveMultipleAsync<T>(string options = "") where T: IDynamicsXrmRow
         {
             // Query the web api.
             HttpResponseMessage response = await _httpClient
@@ -230,7 +252,7 @@ namespace DynamicsXrmClient
             try
             {
                 // Try parsing a collection of records from json.
-                var records = await JsonSerializer.DeserializeAsync<MultipleRecordsResponse<T>>(content, Options);
+                var records = await JsonSerializer.DeserializeAsync<MultipleRecordsResponse<T>>(content, JsonSerializerOptions);
 
                 // Throw if the http request failed or the web api returned an error.
                 response.EnsureSuccessStatusCode();
@@ -263,7 +285,7 @@ namespace DynamicsXrmClient
         public async Task ExecuteBatchAsync(Batch batch)
         {
             // Create http content containing the batch request.
-            HttpContent content = await batch.ComposeAsync(this);
+            HttpContent content = await batch.ComposeAsync(ConnectionParams, JsonSerializerOptions);
 
             // Query the web api.
             HttpResponseMessage response = await _httpClient.PostAsync("$batch", content);

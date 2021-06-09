@@ -1,6 +1,6 @@
 ﻿namespace DynamicsXrmClient
 {
-    public class DynamicsConnectionParams
+    public class DynamicsXrmConnectionParams
     {
         public string TenantId { get; set; }
 

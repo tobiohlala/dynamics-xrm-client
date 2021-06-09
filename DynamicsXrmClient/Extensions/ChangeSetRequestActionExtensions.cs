@@ -6,7 +6,7 @@ namespace DynamicsXrmClient.Extensions
 {
     internal static class ChangeSetRequestActionExtensions
     {
-        internal static (HttpMethod, string) Resolve(this ChangeSetRequestAction changeSetRequestAction, IXRMEntity entity)
+        internal static (HttpMethod, string) Resolve(this ChangeSetRequestAction changeSetRequestAction, IDynamicsXrmRow entity)
         {
             return changeSetRequestAction switch
             {

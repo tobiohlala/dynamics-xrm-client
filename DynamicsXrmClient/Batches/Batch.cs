@@ -3,11 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace DynamicsXrmClient.Batches
 {
-    public class Batch : IEnumerable<IBatchRequest>, IXRMBatchAsyncComposable
+    public class Batch : IEnumerable<IBatchRequest>, IDynamicsXRMBatchAsyncComposable
     {
         private readonly List<IBatchRequest> _requests;
 
@@ -38,7 +39,7 @@ namespace DynamicsXrmClient.Batches
             _requests.AddRange(requests);
         }
 
-        public async Task<HttpContent> ComposeAsync(IDynamicsXrmClient xrmClient)
+        public async Task<HttpContent> ComposeAsync(DynamicsXrmConnectionParams connectionParams, JsonSerializerOptions options)
         {
             var content = new MultipartContent("mixed", $"batch_{Id}");
 
@@ -47,7 +48,7 @@ namespace DynamicsXrmClient.Batches
 
             foreach (var request in this)
             {
-                content.Add(await request.ComposeAsync(xrmClient));
+                content.Add(await request.ComposeAsync(connectionParams, options));
             }
 
             return content;

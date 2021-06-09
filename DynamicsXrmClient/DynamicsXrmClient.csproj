@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Version>1.1.0</Version>
+    <Version>0.1.0</Version>
     <Authors>Tobias Heilig</Authors>
     <Company>Objektkultur Software GmbH</Company>
     <Description>Dynamics365 xRM Web API Client for .NET Core</Description>
@@ -10,6 +10,8 @@
     <RepositoryUrl>https://github.com/tobiohlala/dynamics-xrm-client</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Dynamics 365 XRM CRM Web API Client .NET Core</PackageTags>
+    <PackageLicenseFile></PackageLicenseFile>
+    <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
