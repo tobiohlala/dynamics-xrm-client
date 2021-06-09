@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace DynamicsXrmClient.Responses
 {
-    internal sealed class MultipleRecordsResponse<T>
+    internal sealed class MultipleRowsResponse<T>
     {
         [JsonPropertyName("value")]
         public List<T> Results { get; set; }

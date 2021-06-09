@@ -8,11 +8,11 @@ namespace DynamicsXrmClient.Extensions
 {
     internal static class GenericExtensions
     {
-        internal static async Task<HttpContent> GetHttpContent<T>(this T record, JsonSerializerOptions options)
+        internal static async Task<HttpContent> GetHttpContent<T>(this T row, JsonSerializerOptions options)
         {
             var body = new MemoryStream();
 
-            await JsonSerializer.SerializeAsync<T>(body, record, options);
+            await JsonSerializer.SerializeAsync<T>(body, row, options);
 
             body.Position = 0;
 
